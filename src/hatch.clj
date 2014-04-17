@@ -18,6 +18,23 @@
   [m prefix]
   (into {} (for [[k v] m] [(slam prefix k) v])))
 
+(defn schematode->partitions
+  "Make a hatch partition map from your schematode definition.
+
+   If you find yourself adding unnecessary things to your schema, you
+   should instead define the map by hand."
+  [schematode-schema]
+  (into {} (for [[k v] schematode-schema] [k (slam :db.part (or (:part v) :user))])))
+
+(defn schematode->attrs
+  "Make a hatch attribute pruning map from your schematode
+   definition. Useful when you want your entities pruned to match your
+   schematode.
+
+   If you find yourself adding unnecessary things to your schema, you
+   should instead define the map by hand."
+  [schematode-schema]
+  (into {} (for [[k v] schematode-schema] [k (map #(slam k (first %)) (:attrs v))])))
 
 (defn ensure-db-id
   "Ensure an entity has a db/id using tempid."
@@ -65,8 +82,18 @@
   (def valid-attrs {:person [:person/name :person/favorite-dessert]
                     :dessert [:dessert/name]})
 
+  ;; Alternatively, partition maps and valid-attrs can be generated
+  ;; from your Schematode definition. Caution! If you add anything to
+  ;; your Schematode that doesn't belong there so you can keep using
+  ;; these shortcuts, you should instead make these by hand!
+
+  (def partitions2 (hatch/schematode->partitions schematode-def))
+
+  (def valid-attrs2 (hatch/schematode->attrs schematode-def))
+
   ;; callers should def their own tx-entity! fns kinda like this
   (def tx-entity! (partial hatch/tx-clean-entity! partitions valid-attrs))
+  (def tx-entity2! (partial hatch/tx-clean-entity! partitions2 valid-attrs2))
 
   ;; galleon will do this init stuff
   (schematode/init-schematode-constraints! (:db-conn ht-config/system))
@@ -78,5 +105,11 @@
              :person
              {:person/name "Jon"
               :person/favorite-dessert [:dessert/name "ice cream"]})
+
+  (tx-entity2! (:db-conn ht-config/system) :dessert {:dessert/name "pie"})
+  (tx-entity2! (:db-conn ht-config/system)
+             :person
+             {:person/name "Becky"
+              :person/favorite-dessert [:dessert/name "pie"]})
 
 )

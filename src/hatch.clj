@@ -66,6 +66,12 @@
 
 (comment
 
+  ;; If you're in hatch, open a repl and eval
+  (reset)
+  ;; to work through these examples
+
+  ;; "(:db-conn ht-config/system)" is a datomic connection
+
   ;; Callers should def their own schema
   (def schematode-def
     [[:person {:attrs [[:name :string :db.unique/identity]
@@ -83,9 +89,9 @@
                     :dessert [:dessert/name]})
 
   ;; Alternatively, partition maps and valid-attrs can be generated
-  ;; from your Schematode definition. Caution! If you add anything to
-  ;; your Schematode that doesn't belong there so you can keep using
-  ;; these shortcuts, you should instead make these by hand!
+  ;; from your Schematode definition. Caution! Don't add anything to
+  ;; your Schematode definition that doesn't belong there! If you are
+  ;; tempted to do so, you should instead make these by hand!
 
   (def partitions2 (hatch/schematode->partitions schematode-def))
 
@@ -111,5 +117,8 @@
              :person
              {:person/name "Becky"
               :person/favorite-dessert [:dessert/name "pie"]})
+
+  (ptouch-that '[:find ?e :where [?e :person/name]])
+  (ptouch-that '[:find ?e :where [?e :dessert/name]])
 
 )

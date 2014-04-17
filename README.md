@@ -6,6 +6,8 @@ How you get things in and out of the hold.
 
 ## Usage
 
+### Transacting
+
 *Taken from src/hatch.clj. This outlines how VLACS intends to use Hatch, Schematode, and Datomic. To play around, clone hatch, open a repl and `(reset)`*
 
 Callers should def their own [Schematode](https://github.com/vlacs/datomic-schematode) schema:
@@ -72,6 +74,24 @@ Callers can then do stuff like this
            :person
            {:person/name "Becky"
             :person/favorite-dessert [:dessert/name "pie"]})
+```
+
+### Utilities
+
+Hatch also comes with some other useful functions. Use prefix-keys to add a namespace to all keys in a map:
+
+```clojure
+user> (hatch/prefix-keys {:name "Jon" :email "jon@example.com"} :person)
+{:person/name "Jon", :person/email "jon@example.com"}
+```
+
+It's a good idea to use namespaced attributes internally. Prefix-keys is there when you need it, such as getting data from an external source.
+
+Slam two keywords together to create a single namespaced keyword:
+
+```clojure
+user> (hatch/slam :person :name)
+:person/name
 ```
 
 ## License

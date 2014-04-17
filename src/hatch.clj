@@ -10,7 +10,11 @@
   (keyword (name ns) (name n)))
 
 (defn prefix-keys
-  "Prefix all keys in a map with prefix"
+  "Prefix all keys in a map with prefix.
+   Generally use namespaced attributes in your code.
+
+   prefix-keys is there for you when you have non-namespaced
+   attributes, such as when you get data from an external system."
   [m prefix]
   (into {} (for [[k v] m] [(slam prefix k) v])))
 
@@ -50,22 +54,29 @@
 
 (comment
 
+  ;; callers should def their own schema
   (def schematode-def
     [[:person {:attrs [[:name :string :db.unique/identity]
                        [:favorite-dessert :ref]]}]
      [:dessert {:attrs [[:name :string :db.unique/identity]]
                 :part :desserts}]])
 
+  ;; callers should def their own valid-attrs
   (def valid-attrs {:person [:person/name :person/favorite-dessert]
                     :dessert [:dessert/name]})
 
+  ;; callers should def their own tx-entity! fns kinda like this
   (def tx-entity! (partial hatch/tx-clean-entity! schematode-def valid-attrs))
 
+  ;; galleon will do this init stuff
   (schematode/init-schematode-constraints! (:db-conn ht-config/system))
   (schematode/load-schema! (:db-conn ht-config/system) schematode-def)
+  
+  ;; callers can then do stuff like this
   (tx-entity! (:db-conn ht-config/system) :dessert {:dessert/name "ice cream"})
   (tx-entity! (:db-conn ht-config/system)
              :person
-             {:person/name "Jon" :person/favorite-dessert [:dessert/name "ice cream"]})
+             {:person/name "Jon"
+              :person/favorite-dessert [:dessert/name "ice cream"]})
 
 )

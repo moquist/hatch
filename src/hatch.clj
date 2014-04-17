@@ -18,14 +18,14 @@
           (assoc (slam ns k) (k m))
           (dissoc k))))
 
-(defn prefix-keys
-  "Prefix all keys in a map with prefix.
+(defn slam-all
+  "Slam a namespace on all keys in a map.
    Generally use namespaced attributes in your code.
 
-   prefix-keys is there for you when you have non-namespaced
+   slam-all is there for you when you have non-namespaced
    attributes, such as when you get data from an external system."
-  [m prefix]
-  (into {} (for [[k v] m] [(slam prefix k) v])))
+  [m ns]
+  (into {} (for [[k v] m] [(slam ns k) v])))
 
 (defn schematode->partitions
   "Make a hatch partition map from your schematode definition.

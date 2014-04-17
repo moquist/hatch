@@ -8,9 +8,12 @@ How you get things in and out of the hold.
 
 ### Transacting
 
-*Taken from src/hatch.clj. This outlines how VLACS intends to use Hatch, Schematode, and Datomic. To play around, clone hatch, open a repl and `(reset)`*
+*Taken from src/hatch.clj. This outlines how VLACS intends to use
+ Hatch, Schematode, and Datomic. To play around, clone hatch, open a
+ repl and `(reset)`*
 
-Callers should def their own [Schematode](https://github.com/vlacs/datomic-schematode) schema:
+Callers should def their own
+[Schematode](https://github.com/vlacs/datomic-schematode) schema:
 
 ```clojure
 (def schematode-def
@@ -94,14 +97,16 @@ user> (hatch/slam-in {:name "Jon" :email "jon@example.com"} :person :name)
 {:person/name "Jon", :email "jon@example.com"}
 ```
 
-Use prefix-keys to add a namespace to all keys in a map:
+Use slam-all to add a namespace to all keys in a map:
 
 ```clojure
-user> (hatch/prefix-keys {:name "Jon" :email "jon@example.com"} :person)
+user> (hatch/slam-all {:name "Jon" :email "jon@example.com"} :person)
 {:person/name "Jon", :person/email "jon@example.com"}
 ```
 
-It's a good idea to use namespaced attributes internally. `slam`, `slam-in`, and `prefix-keys` is there when you need it, such as getting data from an external source.
+It's a good idea to use namespaced attributes internally. `slam`,
+`slam-in`, and `slam-all` are there when you need it, such as getting
+data from an external source.
 
 ## License
 

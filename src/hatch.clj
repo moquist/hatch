@@ -18,11 +18,6 @@
   [m prefix]
   (into {} (for [[k v] m] [(slam prefix k) v])))
 
-(defn get-partition
-  "Get the db partition entity type is in from a schematode definition."
-  [schema entity-type]
-  (or (get-in schema [entity-type :part])
-      :db.part/user))
 
 (defn ensure-db-id
   "Ensure an entity has a db/id using tempid."
@@ -30,8 +25,8 @@
      (if (nil? (:db/id entity))
        (merge {:db/id (d/tempid part)} entity)
        entity))
-  ([schema entity-type entity]
-     (ensure-db-id (get-partition schema entity-type) entity)))
+  ([partitions entity-type entity]
+     (ensure-db-id (entity-type partitions) entity)))
 
 (defn prune-entity
   "Prune an entity using attr-map and entity-type."
@@ -45,33 +40,38 @@
 
 (defn tx-clean-entity!
   "Clean up an entity (ensure it has a db/id and prune it), then transact it."
-  [schema attr-map db-conn entity-type entity]
+  [partitions attr-map db-conn entity-type entity]
   (->> entity
-       (ensure-db-id schema entity-type)
+       (ensure-db-id partitions entity-type)
        (prune-entity attr-map entity-type)
        (conj [])
        (tx! db-conn)))
 
 (comment
 
-  ;; callers should def their own schema
+  ;; Callers should def their own schema
   (def schematode-def
     [[:person {:attrs [[:name :string :db.unique/identity]
                        [:favorite-dessert :ref]]}]
      [:dessert {:attrs [[:name :string :db.unique/identity]]
                 :part :desserts}]])
 
-  ;; callers should def their own valid-attrs
+  ;; Callers should def their own partition map
+  (def partitions {:person :db.part/user
+                   :dessert :db.part/desserts})
+
+  ;; Callers should def their own valid-attrs. Attributes not in this
+  ;; map will be pruned by tx-clean-entity!
   (def valid-attrs {:person [:person/name :person/favorite-dessert]
                     :dessert [:dessert/name]})
 
   ;; callers should def their own tx-entity! fns kinda like this
-  (def tx-entity! (partial hatch/tx-clean-entity! schematode-def valid-attrs))
+  (def tx-entity! (partial hatch/tx-clean-entity! partitions valid-attrs))
 
   ;; galleon will do this init stuff
   (schematode/init-schematode-constraints! (:db-conn ht-config/system))
   (schematode/load-schema! (:db-conn ht-config/system) schematode-def)
-  
+
   ;; callers can then do stuff like this
   (tx-entity! (:db-conn ht-config/system) :dessert {:dessert/name "ice cream"})
   (tx-entity! (:db-conn ht-config/system)

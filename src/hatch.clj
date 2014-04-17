@@ -9,6 +9,15 @@
   [ns n]
   (keyword (name ns) (name n)))
 
+(defn slam-in
+  "Slams a namespace on a key in a map"
+  [m ns k]
+  (if (nil? (k m))
+      m
+      (-> m
+          (assoc (slam ns k) (k m))
+          (dissoc k))))
+
 (defn prefix-keys
   "Prefix all keys in a map with prefix.
    Generally use namespaced attributes in your code.

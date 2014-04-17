@@ -78,14 +78,7 @@ Callers can then do stuff like this
 
 ### Utilities
 
-Hatch also comes with some other useful functions. Use prefix-keys to add a namespace to all keys in a map:
-
-```clojure
-user> (hatch/prefix-keys {:name "Jon" :email "jon@example.com"} :person)
-{:person/name "Jon", :person/email "jon@example.com"}
-```
-
-It's a good idea to use namespaced attributes internally. Prefix-keys is there when you need it, such as getting data from an external source.
+Hatch also comes with some other useful functions.
 
 Slam two keywords together to create a single namespaced keyword:
 
@@ -93,6 +86,22 @@ Slam two keywords together to create a single namespaced keyword:
 user> (hatch/slam :person :name)
 :person/name
 ```
+
+To add a namespace to a single key in a map, use slam-in:
+
+```clojure
+user> (hatch/slam-in {:name "Jon" :email "jon@example.com"} :person :name)
+{:person/name "Jon", :email "jon@example.com"}
+```
+
+Use prefix-keys to add a namespace to all keys in a map:
+
+```clojure
+user> (hatch/prefix-keys {:name "Jon" :email "jon@example.com"} :person)
+{:person/name "Jon", :person/email "jon@example.com"}
+```
+
+It's a good idea to use namespaced attributes internally. `slam`, `slam-in`, and `prefix-keys` is there when you need it, such as getting data from an external source.
 
 ## License
 

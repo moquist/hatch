@@ -91,15 +91,15 @@
 
   (def valid-attrs2 (hatch/schematode->attrs schematode-def))
 
-  ;; callers should def their own tx-entity! fns kinda like this
+  ;; Callers should def their own tx-entity! fns kinda like this
   (def tx-entity! (partial hatch/tx-clean-entity! partitions valid-attrs))
   (def tx-entity2! (partial hatch/tx-clean-entity! partitions2 valid-attrs2))
 
-  ;; galleon will do this init stuff
+  ;; Galleon will do this stuff
   (schematode/init-schematode-constraints! (:db-conn ht-config/system))
   (schematode/load-schema! (:db-conn ht-config/system) schematode-def)
 
-  ;; callers can then do stuff like this
+  ;; Callers can then do stuff like this
   (tx-entity! (:db-conn ht-config/system) :dessert {:dessert/name "ice cream"})
   (tx-entity! (:db-conn ht-config/system)
              :person

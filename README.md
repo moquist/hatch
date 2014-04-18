@@ -1,4 +1,4 @@
-# hatch [![Build Status](http://img.shields.io/travis/vlacs/hatch/master.svg)](https://travis-ci.org/vlacs/hatch) [![Coverage](http://img.shields.io/coveralls/vlacs/hatch/master.svg)](http://coveralls.io/r/vlacs/hatch)
+# hatch [![Build Status](http://img.shields.io/travis/vlacs/hatch.svg)](https://travis-ci.org/vlacs/hatch) [![Coverage](http://img.shields.io/coveralls/vlacs/hatch.svg)](http://coveralls.io/r/vlacs/hatch)
 
 How you get things in and out of the hold.
 

@@ -6,10 +6,10 @@ How you get things in and out of the hold.
 
 ## Artifact
 
-All artifacts are published to [clojars](https://clojars.org/org.vlacs/hatch). Latest version is `0.1.0`:
+All artifacts are published to [clojars](https://clojars.org/org.vlacs/hatch). Latest version is `0.1.1`:
 
 ```
-[org.vlacs/hatch "0.1.0"]
+[org.vlacs/hatch "0.1.1"]
 ```
 
 ## Usage

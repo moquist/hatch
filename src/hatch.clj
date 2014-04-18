@@ -12,11 +12,11 @@
 (defn slam-in
   "Slams a namespace on a key in a map"
   [m ns k]
-  (if (nil? (k m))
-      m
+  (if (contains? m k)
       (-> m
           (assoc (slam ns k) (k m))
-          (dissoc k))))
+          (dissoc k))
+      m))
 
 (defn slam-all
   "Slam a namespace on all keys in a map.

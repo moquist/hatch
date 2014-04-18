@@ -4,6 +4,14 @@ How you get things in and out of the hold.
 
 [<img src="doc/Unloading_barrels_from_a_ship_at_Dieppe_by_George_Hayter_1851.jpg" alt="Unloading barrels from a ship at Dieppe by George Hayter 1851" width="50%"/>](http://commons.wikimedia.org/wiki/File:Unloading_barrels_from_a_ship_at_Dieppe_by_George_Hayter_1851.jpg)
 
+## Artifact
+
+All artifacts are published to [clojars](https://clojars.org/org.vlacs/hatch). Latest version is `0.1.0`:
+
+```
+[org.vlacs/hatch "0.1.0"]
+```
+
 ## Usage
 
 ### Transacting

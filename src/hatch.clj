@@ -59,6 +59,12 @@
   [attr-map entity-type entity]
   (select-keys entity (conj (entity-type attr-map) :db/id)))
 
+(defn clean-entity
+  [partitions attr-map entity-type entity]
+  (->> entity
+       (ensure-db-id partitions entity-type)
+       (prune-entity attr-map entity-type)))
+
 (defn tx!
   "Transact with schematode constraints"
   [db-conn txs]
@@ -68,8 +74,7 @@
   "Clean up an entity (ensure it has a db/id and prune it), then transact it."
   [partitions attr-map db-conn entity-type entity]
   (->> entity
-       (ensure-db-id partitions entity-type)
-       (prune-entity attr-map entity-type)
+       (clean-entity partitions attr-map entity-type)
        (conj [])
        (tx! db-conn)))
 

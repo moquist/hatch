@@ -73,10 +73,10 @@
 (defn tx-clean-entity!
   "Clean up an entity (ensure it has a db/id and prune it), then transact it."
   [partitions attr-map db-conn entity-type entity]
-  (->> entity
-       (clean-entity partitions attr-map entity-type)
-       (conj [])
-       (tx! db-conn)))
+  (let [cleaned-entity (clean-entity partitions attr-map entity-type entity)]
+    (if (empty? (dissoc cleaned-entity :db/id))
+      (throw (Exception. "cannot transact empty entity"))
+      (tx! db-conn [cleaned-entity]))))
 
 (comment
 

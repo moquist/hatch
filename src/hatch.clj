@@ -60,6 +60,7 @@
   (select-keys entity (conj (entity-type attr-map) :db/id)))
 
 (defn clean-entity
+  "Ensure entity has a db/id and prune it"
   [partitions attr-map entity-type entity]
   (->> entity
        (ensure-db-id partitions entity-type)

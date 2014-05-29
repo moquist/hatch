@@ -6,7 +6,7 @@
             [datomic.api :as d]
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
             [hatch.test-config :as ht-config]
-            [datomic-schematode.core :as schematode]))
+            [datomic-schematode :as schematode]))
 
 (defn go
   "Initializes the current development system and starts it running."

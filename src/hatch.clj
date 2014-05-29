@@ -2,7 +2,7 @@
   ^{:author "David Zaharee <dzaharee@vlacs.org>"
     :doc "Useful functions for working with Datomic and Schematode"}
   (:require [datomic.api :as d]
-            [datomic-schematode.core :as schematode]))
+            [datomic-schematode :as schematode]))
 
 (defn slam
   "Slams two keywords together into one namespaced keyword"
@@ -33,17 +33,25 @@
    If you find yourself adding unnecessary things to your schema, you
    should instead define the map by hand."
   [schematode-schema]
-  (into {} (for [[k v] schematode-schema] [k (slam :db.part (or (:part v) :user))])))
+  (into {}
+        (map
+          (fn [m]
+            [(:namespace m) (slam :db.part (or (:part m) :user))])
+          schematode-schema)))
 
 (defn schematode->attrs
   "Make a hatch attribute pruning map from your schematode
-   definition. Useful when you want your entities pruned to match your
-   schematode.
+  definition. Useful when you want your entities pruned to match your
+  schematode.
 
    If you find yourself adding unnecessary things to your schema, you
    should instead define the map by hand."
   [schematode-schema]
-  (into {} (for [[k v] schematode-schema] [k (map #(slam k (first %)) (:attrs v))])))
+  (into {}
+        (map
+          (fn [i]
+            [(:namespace i) (map #(slam (:namespace i) (first %)) (:attrs i []))])
+          schematode-schema)))
 
 (defn ensure-db-id
   "Ensure an entity has a db/id using tempid."

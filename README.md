@@ -12,6 +12,11 @@ All artifacts are published to [clojars](https://clojars.org/org.vlacs/hatch). L
 [org.vlacs/hatch "0.1.2"]
 ```
 
+## Running Tests
+You can build the necessary dependencies and run the tests with one command.
+
+```$ sh test.sh```
+
 ## Usage
 
 ### Transacting

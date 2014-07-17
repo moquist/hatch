@@ -49,30 +49,52 @@
   [schematode-schema]
   (into {}
         (map
-          (fn [i]
-            [(:namespace i) (map #(slam (:namespace i) (first %)) (:attrs i []))])
-          schematode-schema)))
+         (fn [i]
+           [(:namespace i) (map #(slam (:namespace i) (first %)) (:attrs i []))])
+         schematode-schema)))
 
 (defn ensure-db-id
   "Ensure an entity has a db/id using tempid."
   ([part entity]
      (if (nil? (:db/id entity))
        (merge {:db/id (d/tempid part)} entity)
-       entity))
-  ([partitions entity-type entity]
-     (ensure-db-id (entity-type partitions) entity)))
+       entity)))
 
 (defn prune-entity
-  "Prune an entity using attr-map and entity-type."
-  [attr-map entity-type entity]
-  (select-keys entity (conj (entity-type attr-map) :db/id)))
+  "Prune an entity using attr list."
+  [attrs entity]
+  (->> attrs
+       (map #(if (sequential? %1)
+               (first %1)
+               %1))
+       (cons :db/id)
+       (select-keys entity)))
+
+(defn merge-composites
+  "Merge together composite keys"
+  [composites entity]
+  (->> entity
+       (repeat)
+       (map #(%1 %2) composites)
+       (apply str)))
+
+(defn ensure-composite-keys
+  "Ensure an entity's composite key(s) are set"
+  [attrs entity]
+  (apply merge
+         entity
+         (for [k attrs
+               :when (sequential? k)]
+           {(first k) (merge-composites (rest k) entity)})))
 
 (defn clean-entity
   "Ensure entity has a db/id and prune it"
   [partitions attr-map entity-type entity]
-  (->> entity
-       (ensure-db-id partitions entity-type)
-       (prune-entity attr-map entity-type)))
+  (let [attrs (entity-type attr-map)]
+    (->> entity
+         (ensure-db-id (entity-type partitions))
+         (ensure-composite-keys attrs)
+         (prune-entity attrs))))
 
 (defn tx!
   "Transact with schematode constraints"
@@ -98,7 +120,10 @@
   ;; Callers should def their own schema
   (def schematode-def
     [{:namespace :person
-      :attrs [[:name :string :db.unique/identity]
+      :attrs [[:id-sk :string]
+              [:id-sk-origin :keyword]
+              [:id-sk-with-origin :string :db.unique/identity]
+              [:name :string]
               [:favorite-dessert :ref]]}
      {:namespace :dessert
       :attrs [[:name :string :db.unique/identity]]
@@ -109,11 +134,17 @@
                    :dessert :db.part/desserts})
 
   ;; Callers should def their own attribute map. Attributes not in this
-  ;; map will be pruned by tx-clean-entity!
-  (def attrs {:person [:person/name :person/favorite-dessert]
-                    :dessert [:dessert/name]})
+  ;; map will be pruned by tx-clean-entity! To have hatch smush together
+  ;; composite attributes for upserting, define them as a vector in the
+  ;; form [attribute & attribute-composites]
+  (def attrs {:person [:person/id-sk
+                       :person/id-sk-origin
+                       [:person/id-sk-with-origin :person/id-sk :person/id-sk-origin]
+                       :person/name
+                       :person/favorite-dessert]
+              :dessert [:dessert/name]})
 
-  ;; Alternatively, partition maps and valid-attrs can be generated
+  ;; Alternatively, partition and attribute maps can be generated
   ;; from your Schematode definition. Caution! Don't add anything to
   ;; your Schematode definition that doesn't belong there! If you are
   ;; tempted to do so, you should instead make these by hand!
@@ -134,13 +165,17 @@
   (tx-entity! (:db-conn ht-config/system) :dessert {:dessert/name "ice cream"})
   (tx-entity! (:db-conn ht-config/system)
              :person
-             {:person/name "Jon"
+             {:person/id-sk "1"
+              :person/id-sk-origin :internal
+              :person/name "Jon"
               :person/favorite-dessert [:dessert/name "ice cream"]})
 
   (tx-entity2! (:db-conn ht-config/system) :dessert {:dessert/name "pie"})
   (tx-entity2! (:db-conn ht-config/system)
              :person
-             {:person/name "Becky"
+             {:person/id-sk "2"
+              :person/id-sk-origin :internal
+              :person/name "Becky"
               :person/favorite-dessert [:dessert/name "pie"]})
 
   (ptouch-that '[:find ?e :where [?e :person/name]])

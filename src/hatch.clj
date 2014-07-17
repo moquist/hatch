@@ -97,18 +97,20 @@
 
   ;; Callers should def their own schema
   (def schematode-def
-    [[:person {:attrs [[:name :string :db.unique/identity]
-                       [:favorite-dessert :ref]]}]
-     [:dessert {:attrs [[:name :string :db.unique/identity]]
-                :part :desserts}]])
+    [{:namespace :person
+      :attrs [[:name :string :db.unique/identity]
+              [:favorite-dessert :ref]]}
+     {:namespace :dessert
+      :attrs [[:name :string :db.unique/identity]]
+      :part :desserts}])
 
   ;; Callers should def their own partition map
   (def partitions {:person :db.part/user
                    :dessert :db.part/desserts})
 
-  ;; Callers should def their own valid-attrs. Attributes not in this
+  ;; Callers should def their own attribute map. Attributes not in this
   ;; map will be pruned by tx-clean-entity!
-  (def valid-attrs {:person [:person/name :person/favorite-dessert]
+  (def attrs {:person [:person/name :person/favorite-dessert]
                     :dessert [:dessert/name]})
 
   ;; Alternatively, partition maps and valid-attrs can be generated
@@ -118,11 +120,11 @@
 
   (def partitions2 (hatch/schematode->partitions schematode-def))
 
-  (def valid-attrs2 (hatch/schematode->attrs schematode-def))
+  (def attrs2 (hatch/schematode->attrs schematode-def))
 
   ;; Callers should def their own tx-entity! fns kinda like this
-  (def tx-entity! (partial hatch/tx-clean-entity! partitions valid-attrs))
-  (def tx-entity2! (partial hatch/tx-clean-entity! partitions2 valid-attrs2))
+  (def tx-entity! (partial hatch/tx-clean-entity! partitions attrs))
+  (def tx-entity2! (partial hatch/tx-clean-entity! partitions2 attrs2))
 
   ;; Galleon will do this stuff
   (schematode/init-schematode-constraints! (:db-conn ht-config/system))

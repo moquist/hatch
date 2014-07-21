@@ -27,6 +27,26 @@
   [m ns]
   (into {} (for [[k v] m] [(slam ns k) v])))
 
+(defn attr-as-lookup-refs
+  "Take an entity and transform an attribute into a transactable
+  collection of lookup refs. Removes the attribute if empty.
+
+  user> (attr-as-lookup-refs {:user/name \"Dave\" :user/friends [\"Jon\" \"Matt\"]}
+                             :user/friends
+                             :user/name)
+  {:user/name \"Dave\" :user/friends [[:user/name \"Jon\"] [:user/name \"Matt\"]]}
+
+  user> (attr-as-lookup-refs {:user/name \"Grinch\" :user/friends []}
+                             :user/friends
+                             :user/name)
+  {:user/name \"Grinch\"}"
+  [entity attribute ref-attribute]
+  (if-let [refs (attribute entity)]
+    (if (empty? refs)
+      (dissoc entity attribute)
+      (assoc entity attribute (map (partial vector ref-attribute) refs)))
+    entity))
+
 (defn schematode->partitions
   "Make a hatch partition map from your schematode definition.
 

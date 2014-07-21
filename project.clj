@@ -1,4 +1,4 @@
-(defproject org.vlacs/hatch "0.2.2"
+(defproject org.vlacs/hatch "0.2.3"
   :description "Hatch, how we get things in and out of the hold (Datomic)."
   :url "https://github.com/vlacs/hatch"
   :license {:name "Eclipse Public License"
